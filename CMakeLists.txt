@@ -224,6 +224,8 @@ macro(enable_cuda)
   set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --extended-lambda")
 endmacro()
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # optional packages
 #
 # find packages explicitly for each component even if this means searching for
