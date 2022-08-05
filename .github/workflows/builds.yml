@@ -696,7 +696,7 @@ jobs:
       - name: Generate compilation database
         run: |
           mkdir build
-          cmake -S . -B build D ACTS_USE_SYSTEM_BOOST=OFF -D ACTS_USE_SYSTEM_EIGEN3=OFF
+          cmake -S . -B build -D ACTS_USE_SYSTEM_BOOST=OFF -D ACTS_USE_SYSTEM_EIGEN3=OFF
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
