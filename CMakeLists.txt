@@ -362,6 +362,7 @@ endif()
 # documentation
 add_subdirectory_if(docs ACTS_BUILD_DOCS)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # create cmake configuration files and environment setup script
 include(ActsCreatePackageConfig)
