@@ -57,7 +57,7 @@ For convenience, it is possible to build the required boost and eigen3 dependenc
 Other options are also
 available and are discussed in the [Building Acts](#building-acts) section.
 
-[Profiling](howto/profiling.md) details the prerequisites for profiling the ACTS project with gperftools.
+[Profiling](contribution/profiling.md) details the prerequisites for profiling the ACTS project with gperftools.
 
 ## Building Acts
 
@@ -183,20 +183,33 @@ However, if you have the necessary prerequisites installed it is possible to use
 it locally. Acts developers regularly use different Linux distributions
 and macOS to build and develop Acts.
 
+(build_docs)=
 ## Building the documentation
 
 The documentation uses [Doxygen][doxygen] to extract the source code
-documentation and [Sphinx][sphinx] with the [Breathe][breathe] and
-[Exhale][exhale] extensions to generate the documentation website. To build the
-documentation locally, you need to have [Doxygen][doxygen] installed from your
-package manager. [Sphinx][sphinx] and its extensions can be installed using the
-Python package manager via
+documentation and [Sphinx][sphinx] with the [Breathe][breathe] extension to
+generate the documentation website. To build the documentation locally, you
+need to have [Doxygen][doxygen] version `1.9.5` or newer installed.
+[Sphinx][sphinx] and a few other depencencies can be installed using the Python
+package manager `pip`:
 
 ```console
 $ cd <source>
-# --user installs to a user-specific directory instead of the system
-$ pip install --user -r docs/requirements.txt
+$ pip install -r docs/requirements.txt
 ```
+
+:::{tip}
+It is **strongly recommended** to use a [virtual
+environment](https://realpython.com/python-virtual-environments-a-primer/) for
+this purpose! For example, run 
+
+```console
+$ python -m venv docvenv
+$ source docvenv/bin/activate
+```
+
+to create a local virtual environment, and then run the `pip` command above.
+:::
 
 To activate the documentation build targets, the `ACTS_BUILD_DOCS` option has to be set
 
@@ -213,18 +226,24 @@ $ cmake --build <build> --target docs # default fast option
 $ cmake --build <build> --target docs-with-api # full documentation
 ```
 
-The default option includes the Doxygen, Sphinx, and the Breathe extension, i.e.
-the source code information can be used in the manually written documentation
-but the full API documentation is not generated. The second target builds the
-full documentation using Exhale to automatically generate the API documentation.
-This is equivalent to the public [Read the Docs][rtd_acts] documentation, but
-the build takes around ten minutes to finish.
+The default option includes the Doxygen, Sphinx, and the Breathe extension,
+i.e. the source code information can be used in the manually written
+documentation but the full API documentation is not generated. The second
+target builds the full documentation to automatically generate full API
+listings. This is equivalent to the public [Read the Docs][rtd_acts]
+documentation, but the build takes a while to finish.
 
 [doxygen]: https://doxygen.nl/
 [sphinx]: https://www.sphinx-doc.org
 [breathe]: https://breathe.readthedocs.io
 [exhale]: https://exhale.readthedocs.io
 [rtd_acts]: https://acts.readthedocs.io
+
+A special phony target exists to clean the documentation output files:
+
+```console
+$ cmake --build <build> --target clean-docs
+```
 
 ## Build options
 
@@ -272,6 +291,7 @@ components.
 | ACTS_BUILD_EXAMPLES_PYTHIA8         | Build Pythia8-based code in the examples<br> type: `bool`, default: `OFF`                                                                                                                                                          |
 | ACTS_BUILD_EXAMPLES_PYTHON_BINDINGS | Build python bindings for the examples<br> type: `bool`, default: `OFF`                                                                                                                                                            |
 | ACTS_USE_SYSTEM_PYBIND11            | Use a system installation of pybind11<br> type: `bool`, default: `OFF`                                                                                                                                                             |
+| ACTS_USE_EXAMPLES_TBB               | Use Threading Building Blocks library in the examples<br> type: `bool`, default: `ON`                                                                                                                                              |
 | ACTS_BUILD_ANALYSIS_APPS            | Build Analysis applications in the<br>examples<br> type: `bool`, default: `OFF`                                                                                                                                                    |
 | ACTS_BUILD_BENCHMARKS               | Build benchmarks<br> type: `bool`, default: `OFF`                                                                                                                                                                                  |
 | ACTS_BUILD_INTEGRATIONTESTS         | Build integration tests<br> type: `bool`, default: `OFF`                                                                                                                                                                           |
@@ -326,18 +346,18 @@ The following environment variables might be useful.
 
 ## The OpenDataDetector
 
-Acts comes packaged with a detector modeled using DD4Hep that can be used to test your algorithms. It comes equipped with a magnetic field file as well as an already built material map. 
-It is available via the git submodule feature by performing the following steps (git lfs need to be installed on your machine) :
+Acts comes packaged with a detector modeled using DD4hep that can be used to test your algorithms. It comes equipped with a magnetic field file as well as an already built material map. 
+It is available via the git submodule feature by performing the following steps (git lfs need to be installed on your machine):
 
-.. code-block:: console
-  
-  git submodule init
-  git submodule update
+```console
+$ git submodule init
+$ git submodule update
+```
 
-To use it, you will then need to build acts with the ACTS_BUILD_ODD option and then point either LD_LIBRARY_PATH on Linux or  
-DYLD_LIBRARY_PATH and DD4HEP_LIBRARY_PATH on MacOs to the install path of the ODD factory (for example : build/thirdparty/OpenDataDetector/factory).
+To use it, you will then need to build acts with the `ACTS_BUILD_ODD` option and then point either `LD_LIBRARY_PATH` on Linux or 
+`DYLD_LIBRARY_PATH` and `DD4HEP_LIBRARY_PATH` on MacOs to the install path of the ODD factory (for example: `build/thirdparty/OpenDataDetector/factory`).
 
-You can now use the ODD in the python binding by using : 
+You can now use the ODD in the python binding by using:
 
 ```python
 oddMaterialDeco = acts.IMaterialDecorator.fromFile("PATH_TO_Acts/thirdparty/OpenDataDetector/data/odd-material-maps.root")
