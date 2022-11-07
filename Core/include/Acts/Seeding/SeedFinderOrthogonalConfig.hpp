@@ -10,6 +10,7 @@
 
 #include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Definitions/Units.hpp"
+#include "Acts/Seeding/SeedConfirmationRangeConfig.hpp"
 
 #include <memory>
 
@@ -78,13 +79,26 @@ struct SeedFinderOrthogonalConfig {
   float deltaZMax =
       std::numeric_limits<float>::infinity() * Acts::UnitConstants::mm;
 
+  // enable cut on the compatibility between interaction point and SPs
+  bool interactionPointCut = false;
+
+  // seed confirmation
+  bool seedConfirmation = false;
+  // parameters for central seed confirmation
+  SeedConfirmationRangeConfig centralSeedConfirmationRange;
+  // parameters for forward seed confirmation
+  SeedConfirmationRangeConfig forwardSeedConfirmationRange;
+
+  // skip top SPs based on cotTheta sorting when producing triplets
+  bool skipPreviousTopSP = false;
+
   // average radiation lengths of material on the length of a seed. used for
   // scattering.
   // default is 5%
   // TODO: necessary to make amount of material dependent on detector region?
   float radLengthPerSeed = 0.05;
 
-  // derived values, set on Seedfinder construction
+  // derived values, set on SeedFinder construction
   float highland = 0;
   float maxScatteringAngle2 = 0;
   float pTPerHelixRadius = 0;
