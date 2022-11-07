@@ -613,7 +613,6 @@ jobs:
           && cmake --build build
       - name: ccache stats
         run: ccache -s
-<<<<<<< HEAD
 
   docs:
     runs-on: ubuntu-latest
