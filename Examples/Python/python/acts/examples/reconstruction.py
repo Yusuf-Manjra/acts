@@ -468,6 +468,8 @@ def addSeeding(
                     interactionPointCut=seedFinderConfigArg.interactionPointCut,
                     deltaZMax=seedFinderConfigArg.deltaZMax,
                     maxPtScattering=seedFinderConfigArg.maxPtScattering,
+                    rRangeMiddleSP=seedFinderConfigArg.rRangeMiddleSP,
+                    useVariableMiddleSPRange=seedFinderConfigArg.useVariableMiddleSPRange,
                     seedConfirmation=seedFinderConfigArg.seedConfirmation,
                     centralSeedConfirmationRange=seedFinderConfigArg.centralSeedConfirmationRange,
                     forwardSeedConfirmationRange=seedFinderConfigArg.forwardSeedConfirmationRange,
@@ -649,7 +651,7 @@ def addTruthTrackingGsf(
         "maxComponents": 12,
         "abortOnError": False,
         "disableAllMaterialHandling": False,
-        "finalReductionMethod": acts.examples.FinalReductionMethod.mean,
+        "finalReductionMethod": acts.examples.FinalReductionMethod.maxWeight,
         "weightCutoff": 1.0e-4,
     }
 
