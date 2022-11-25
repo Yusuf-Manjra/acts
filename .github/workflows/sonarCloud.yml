@@ -9,7 +9,8 @@ on:
       - 'develop/**'
     paths-ignore:
       - "docs/**"
-
+      
+jobs:
   sonarUbuntu:
     name: Sonar-Ubuntu
     runs-on: ubuntu-latest
