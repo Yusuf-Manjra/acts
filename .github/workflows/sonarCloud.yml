@@ -49,7 +49,6 @@ jobs:
       - name: Run tests to generate coverage statistics
         run: |
           ./build-linux/bin/ActsUnitTestAny
-          ./build-linux/ActsUnitTestRay
       - name: Collect coverage into one XML report
         run: |
           gcovr --sonarqube > coverage.xml
