@@ -42,7 +42,7 @@ jobs:
           build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }}  cmake --build build-linux --clean-first -j $(nproc)
       - name: Run tests to generate coverage statistics
         run: |
-          find ./build-linux/bin -maxdepth 1 -name "*UnitTest*" -executable -exec '{}' ';'
+          find ./build-linux/bin -maxdepth 1 -name "*Test*" -executable -exec '{}' ';'
       - name: Collect coverage into one XML report
         run: |
           gcovr --sonarqube > coverage.xml
