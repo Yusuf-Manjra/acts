@@ -169,7 +169,7 @@ bool SeedFinderOrthogonal<external_spacepoint_t>::validTuple(
   }
 
   /*
-   * Cut: Ensure that the origin of the duplet (the intersection of the line
+   * Cut: Ensure that the origin of the dublet (the intersection of the line
    * between them with the z axis) lies within the collision region.
    */
   float zOrigin = zL - rL * cotTheta;
@@ -335,7 +335,6 @@ void SeedFinderOrthogonal<external_spacepoint_t>::filterCandidates(
     }
 
     auto lb = linCircleBottom[b];
-    seedFilterState.zOrigin = lb.Zo;
     float cotThetaB = lb.cotTheta;
     float Vb = lb.V;
     float Ub = lb.U;
@@ -344,7 +343,7 @@ void SeedFinderOrthogonal<external_spacepoint_t>::filterCandidates(
 
     // 1+(cot^2(theta)) = 1/sin^2(theta)
     float iSinTheta2 = (1. + cotThetaB * cotThetaB);
-    float sigmaSquaredSPtDependent = iSinTheta2 * options.sigmapT2perRadius;
+    float sigmaSquaredPtDependent = iSinTheta2 * options.sigmapT2perRadius;
     // calculate max scattering for min momentum at the seed's theta angle
     // scaling scatteringAngle^2 by sin^2(theta) to convert pT^2 to p^2
     // accurate would be taking 1/atan(thetaBottom)-1/atan(thetaTop) <
@@ -354,9 +353,7 @@ void SeedFinderOrthogonal<external_spacepoint_t>::filterCandidates(
     // resolving with pT to p scaling --> only divide by sin^2(theta)
     // max approximation error for allowed scattering angles of 0.04 rad at
     // eta=infinity: ~8.5%
-    float scatteringInRegion2 = m_config.maxScatteringAngle2 * iSinTheta2;
-    // multiply the squared sigma onto the squared scattering
-    scatteringInRegion2 *= m_config.sigmaScattering * m_config.sigmaScattering;
+    float scatteringInRegion2 = options.multipleScattering2 * iSinTheta2;
 
     // minimum number of compatible top SPs to trigger the filter for a certain
     // middle bottom pair if seedConfirmation is false we always ask for at
@@ -434,7 +431,7 @@ void SeedFinderOrthogonal<external_spacepoint_t>::filterCandidates(
       float iHelixDiameter2 = B2 / S2;
       // convert p(T) to p scaling by sin^2(theta) AND scale by 1/sin^4(theta)
       // from rad to deltaCotTheta
-      float p2scatterSigma = iHelixDiameter2 * sigmaSquaredSPtDependent;
+      float p2scatterSigma = iHelixDiameter2 * sigmaSquaredPtDependent;
       if (!std::isinf(m_config.maxPtScattering)) {
         // if pT > maxPtScattering, calculate allowed scattering angle using
         // maxPtScattering instead of pt.
@@ -476,6 +473,8 @@ void SeedFinderOrthogonal<external_spacepoint_t>::filterCandidates(
       continue;
     }
 
+    seedFilterState.zOrigin = middle.z() - rM * lb.cotTheta;
+
     m_config.seedFilter->filterSeeds_2SpFixed(
         spacePointData, *bottom[b], middle, top_valid, curvatures,
         impactParameters, seedFilterState, candidates_collector);
@@ -498,7 +497,7 @@ void SeedFinderOrthogonal<external_spacepoint_t>::processFromMiddleSP(
    * bottom_lh_v denotes the candidates bottom seed points, assuming that the
    * track has monotonically _increasing_ z position. bottom_hl_v denotes the
    * candidate bottom points assuming that the track has monotonically
-   * _decreaing_ z position. top_lh_v are the candidate top points for an
+   * _decreasing_ z position. top_lh_v are the candidate top points for an
    * increasing z track, and top_hl_v are the candidate top points for a
    * decreasing z track.
    */
@@ -761,11 +760,12 @@ void SeedFinderOrthogonal<external_spacepoint_t>::createSeeds(
     }
 
     // remove all middle SPs outside phi and z region of interest
-    if (middle.z() > m_config.zMax || middle.z() < m_config.zMin) {
+    if (middle.z() < m_config.zOutermostLayers.first or
+        middle.z() > m_config.zOutermostLayers.second) {
       continue;
     }
     float spPhi = std::atan2(middle.y(), middle.x());
-    if (spPhi > m_config.phiMax || spPhi < m_config.phiMin) {
+    if (spPhi > m_config.phiMax or spPhi < m_config.phiMin) {
       continue;
     }
 
