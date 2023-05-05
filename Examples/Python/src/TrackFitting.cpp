@@ -35,10 +35,11 @@ void addTrackFitting(Context& ctx) {
                                 inputSimHits, inputMeasurementSimHitsMap,
                                 outputProtoTracks);
 
-  ACTS_PYTHON_DECLARE_ALGORITHM(
-      ActsExamples::TrackFittingAlgorithm, mex, "TrackFittingAlgorithm",
-      inputMeasurements, inputSourceLinks, inputProtoTracks,
-      inputInitialTrackParameters, outputTracks, fit, pickTrack);
+  ACTS_PYTHON_DECLARE_ALGORITHM(ActsExamples::TrackFittingAlgorithm, mex,
+                                "TrackFittingAlgorithm", inputMeasurements,
+                                inputSourceLinks, inputProtoTracks,
+                                inputInitialTrackParameters, inputClusters,
+                                outputTracks, fit, pickTrack, calibrator);
 
   ACTS_PYTHON_DECLARE_ALGORITHM(ActsExamples::RefittingAlgorithm, mex,
                                 "RefittingAlgorithm", inputTracks, outputTracks,
@@ -65,6 +66,14 @@ void addTrackFitting(Context& ctx) {
         py::arg("multipleScattering"), py::arg("energyLoss"),
         py::arg("reverseFilteringMomThreshold"),
         py::arg("freeToBoundCorrection"), py::arg("level"));
+
+    py::class_<MeasurementCalibrator, std::shared_ptr<MeasurementCalibrator>>(
+        mex, "MeasurementCalibrator");
+
+    mex.def("makePassThroughCalibrator",
+            []() -> std::shared_ptr<MeasurementCalibrator> {
+              return std::make_shared<PassThroughCalibrator>();
+            });
 
     py::enum_<Acts::FinalReductionMethod>(mex, "FinalReductionMethod")
         .value("mean", Acts::FinalReductionMethod::eMean)

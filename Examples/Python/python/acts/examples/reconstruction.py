@@ -819,6 +819,7 @@ def addKalmanTracks(
     inputProtoTracks: str = "truth_particle_tracks",
     multipleScattering: bool = True,
     energyLoss: bool = True,
+    clusters: str = None,
     logLevel: Optional[acts.logging.Level] = None,
 ) -> None:
     customLogLevel = acts.examples.defaultLogging(s, logLevel)
@@ -848,13 +849,16 @@ def addKalmanTracks(
         inputSourceLinks="sourcelinks",
         inputProtoTracks=inputProtoTracks,
         inputInitialTrackParameters="estimatedparameters",
+        inputClusters=clusters if clusters is not None else "",
         outputTracks="kfTracks",
         pickTrack=-1,
         fit=acts.examples.makeKalmanFitterFunction(
             trackingGeometry, field, **kalmanOptions
         ),
+        calibrator=acts.examples.makePassThroughCalibrator(),
     )
     s.addAlgorithm(fitAlg)
+    s.addWhiteboardAlias("tracks", fitAlg.config.outputTracks)
 
     trackConverter = acts.examples.TracksToTrajectories(
         level=customLogLevel(),
@@ -862,7 +866,6 @@ def addKalmanTracks(
         outputTrajectories="kfTrajectories",
     )
     s.addAlgorithm(trackConverter)
-
     s.addWhiteboardAlias("trajectories", trackConverter.config.outputTrajectories)
 
     return s
@@ -896,6 +899,7 @@ def addTruthTrackingGsf(
         outputTracks="gsf_tracks",
         pickTrack=-1,
         fit=acts.examples.makeGsfFitterFunction(trackingGeometry, field, **gsfOptions),
+        calibrator=acts.examples.makePassThroughCalibrator(),
     )
     s.addAlgorithm(gsfAlg)
 
@@ -965,6 +969,7 @@ def addCKFTracks(
         ),
     )
     s.addAlgorithm(trackFinder)
+    s.addWhiteboardAlias("tracks", trackFinder.config.outputTracks)
 
     trackConverter = acts.examples.TracksToTrajectories(
         level=customLogLevel(),
@@ -982,6 +987,7 @@ def addCKFTracks(
             outputTracks="selectedTracks",
             logLevel=customLogLevel(),
         )
+        s.addWhiteboardAlias("tracks", trackSelector.config.outputTracks)
 
         selectedTrackConverter = acts.examples.TracksToTrajectories(
             level=customLogLevel(),
@@ -1273,7 +1279,7 @@ def addAmbiguityResolution(
 
     alg = AmbiguityResolutionAlgorithm(
         level=customLogLevel(),
-        inputTracks="selectedTracks",
+        inputTracks="tracks",
         outputTracks="filteredTrajectories",
         **acts.examples.defaultKWArgs(
             maximumSharedHits=config.maximumSharedHits,
@@ -1329,7 +1335,7 @@ def addAmbiguityResolutionML(
 
     alg = AmbiguityResolutionMLAlgorithm(
         level=customLogLevel(),
-        inputTracks="selectedTracks",
+        inputTracks="tracks",
         inputDuplicateNN=onnxModelFile,
         outputTracks="filteredTrajectoriesML",
         **acts.examples.defaultKWArgs(
@@ -1384,7 +1390,7 @@ def addAmbiguityResolutionMLDBScan(
 
     alg = AmbiguityResolutionMLDBScanAlgorithm(
         level=customLogLevel(),
-        inputTracks="selectedTracks",
+        inputTracks="tracks",
         inputDuplicateNN=onnxModelFile,
         outputTracks="filteredTrajectoriesMLDBScan",
         **acts.examples.defaultKWArgs(
